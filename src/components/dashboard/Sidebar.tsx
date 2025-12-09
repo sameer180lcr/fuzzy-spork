@@ -21,12 +21,12 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col">
       <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-2">
+        <NavLink to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
             <span className="text-background font-bold text-sm">H</span>
           </div>
           <span className="font-semibold text-lg tracking-tight">Hirely</span>
-        </div>
+        </NavLink>
       </div>
       
       <nav className="flex-1 p-4">
@@ -35,6 +35,7 @@ const Sidebar = () => {
             <li key={item.label}>
               <NavLink
                 to={item.href}
+                end={item.href === "/dashboard"}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
@@ -53,10 +54,13 @@ const Sidebar = () => {
       </nav>
       
       <div className="p-4 border-t border-border">
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full">
+        <NavLink 
+          to="/"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full"
+        >
           <LogOut className="w-4 h-4" />
           Sign out
-        </button>
+        </NavLink>
       </div>
     </aside>
   );

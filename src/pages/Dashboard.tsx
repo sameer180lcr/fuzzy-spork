@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import StatCard from "@/components/dashboard/StatCard";
@@ -32,15 +33,6 @@ const topCandidates = [
     skills: ["React", "Node.js", "TypeScript", "PostgreSQL"],
     matchScore: 92,
     rating: 4.7,
-  },
-  {
-    name: "Priya Patel",
-    role: "Data Scientist",
-    location: "Austin, TX",
-    experience: "5 years",
-    skills: ["Python", "R", "SQL", "Machine Learning", "Statistics"],
-    matchScore: 89,
-    rating: 4.8,
   },
 ];
 
@@ -101,13 +93,15 @@ const Dashboard = () => {
                     <h2 className="text-lg font-semibold">Top Matched Candidates</h2>
                     <p className="text-sm text-muted-foreground">AI-ranked based on your open roles</p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    View All
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/dashboard/candidates">
+                      View All
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
                   </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  {topCandidates.slice(0, 2).map((candidate, index) => (
+                  {topCandidates.map((candidate, index) => (
                     <motion.div
                       key={candidate.name}
                       initial={{ opacity: 0, y: 10 }}
@@ -124,9 +118,11 @@ const Dashboard = () => {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-semibold">Recent Jobs</h2>
-                  <Button size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Job
+                  <Button size="sm" asChild>
+                    <Link to="/dashboard/jobs">
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Job
+                    </Link>
                   </Button>
                 </div>
                 <div className="space-y-4">
