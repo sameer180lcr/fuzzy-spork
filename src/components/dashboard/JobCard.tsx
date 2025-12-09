@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, Clock, MoreHorizontal } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface JobCardProps {
   title: string;
@@ -58,8 +59,8 @@ const JobCard = ({
             {daysOpen}d open
           </div>
         </div>
-        <Button size="sm" variant="outline">
-          View
+        <Button size="sm" variant="outline" asChild>
+          <Link to="/dashboard/candidates">View</Link>
         </Button>
       </div>
     </div>

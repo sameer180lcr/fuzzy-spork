@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Clock, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface CandidateCardProps {
   name: string;
@@ -71,11 +72,13 @@ const CandidateCard = ({
       </div>
       
       <div className="flex items-center gap-3">
-        <Button size="sm" className="flex-1">
-          View Profile
+        <Button size="sm" className="flex-1" asChild>
+          <Link to="/candidate/1">View Profile</Link>
         </Button>
-        <Button size="sm" variant="outline">
-          <ExternalLink className="w-4 h-4" />
+        <Button size="sm" variant="outline" asChild>
+          <Link to="/interview">
+            <ExternalLink className="w-4 h-4" />
+          </Link>
         </Button>
       </div>
     </div>
