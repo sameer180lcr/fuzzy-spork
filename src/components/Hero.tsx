@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -43,12 +44,16 @@ const Hero = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Button variant="hero" size="lg" className="group">
-            Start hiring free
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          <Button variant="hero" size="lg" className="group" asChild>
+            <Link to="/dashboard">
+              Start hiring free
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </Button>
-          <Button variant="outline" size="lg">
-            Watch demo
+          <Button variant="outline" size="lg" asChild>
+            <Link to="/interview">
+              Try AI Interview
+            </Link>
           </Button>
         </motion.div>
         
