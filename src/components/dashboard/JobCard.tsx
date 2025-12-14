@@ -39,7 +39,7 @@ const JobCard = ({
           <MoreHorizontal className="w-4 h-4" />
         </Button>
       </div>
-      
+
       <div className="flex items-center gap-2 mb-4">
         <Badge variant="secondary" className="font-normal">{type}</Badge>
         <Badge variant="secondary" className="font-normal">{location}</Badge>
@@ -47,7 +47,7 @@ const JobCard = ({
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </Badge>
       </div>
-      
+
       <div className="flex items-center justify-between pt-4 border-t border-border">
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1.5">
@@ -60,7 +60,7 @@ const JobCard = ({
           </div>
         </div>
         <Button size="sm" variant="outline" asChild>
-          <Link to="/dashboard/candidates">View</Link>
+          <Link to="/dashboard/jobs/1">View</Link>
         </Button>
       </div>
     </div>

@@ -5,32 +5,36 @@ const features = [
   {
     icon: Users,
     title: "Employer Dashboard",
-    description: "Post roles, set requirements, and review AI-ranked candidate shortlists with detailed assessment transcripts.",
-    details: ["Role-specific criteria", "Ranked shortlists", "Interview transcripts"]
+    description: "Post roles, set requirements, and review AI-ranked candidate shortlists.",
+    color: "#0071E3",
+    span: "col-span-1",
   },
   {
     icon: MessageSquare,
     title: "AI Interviews",
-    description: "Automated interviews powered by LLMs that ask role-specific questions and evaluate responses with rubric scoring.",
-    details: ["Async or live modes", "Auto-scoring", "Structured feedback"]
+    description: "Automated interviews that evaluate responses with rubric scoring.",
+    color: "#FF8756",
+    span: "col-span-1",
   },
   {
     icon: Sparkles,
     title: "Smart Matching",
-    description: "Semantic matching using transformer embeddings connects candidates to roles based on skills, experience, and fit.",
-    details: ["Skill extraction", "Portfolio analysis", "Confidence scores"]
+    description: "Semantic matching connects candidates to roles based on skills and fit.",
+    color: "#9D8068",
+    span: "col-span-1",
   },
   {
     icon: BarChart3,
     title: "Candidate Profiles",
-    description: "Candidates create rich profiles from resumes, GitHub, and portfolios. Take assessments and receive actionable feedback.",
-    details: ["Resume parsing", "Code quality metrics", "Micro-task assessments"]
+    description: "Rich profiles from resumes, GitHub, and portfolios with assessments.",
+    color: "#0071E3",
+    span: "col-span-1",
   }
 ];
 
 const Features = () => {
   return (
-    <section id="features" className="py-24 px-6 bg-secondary/30">
+    <section id="features" className="py-24 px-6 bg-white">
       <div className="container mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,15 +43,18 @@ const Features = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Four pillars of intelligent hiring
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#1D1D1F] mb-5">
+            Intelligent hiring.
+            <br />
+            <span className="gradient-pro-text">Built for speed.</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Every component designed to reduce manual work and produce measurable, high-quality matches.
+          <p className="text-lg text-[#1D1D1F]/50 max-w-xl mx-auto">
+            Every component designed to reduce manual work and produce high-quality matches.
           </p>
         </motion.div>
-        
-        <div className="grid md:grid-cols-2 gap-6">
+
+        {/* Bento Grid */}
+        <div className="bento-grid grid-cols-2">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -55,27 +62,19 @@ const Features = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group bg-background rounded-2xl p-8 border border-border hover:border-primary/20 hover:shadow-medium transition-all duration-300"
+              className={`bento-card bg-[#F5F5F7] p-10 ${feature.span}`}
             >
-              <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mb-6 group-hover:bg-primary/10 transition-colors">
-                <feature.icon className="w-6 h-6 text-primary" />
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                style={{ backgroundColor: `${feature.color}12` }}
+              >
+                <feature.icon className="w-7 h-7" style={{ color: feature.color }} />
               </div>
-              
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
+
+              <h3 className="text-2xl font-semibold text-[#1D1D1F] mb-3">{feature.title}</h3>
+              <p className="text-[#1D1D1F]/50 leading-relaxed text-lg">
                 {feature.description}
               </p>
-              
-              <div className="flex flex-wrap gap-2">
-                {feature.details.map((detail) => (
-                  <span
-                    key={detail}
-                    className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium"
-                  >
-                    {detail}
-                  </span>
-                ))}
-              </div>
             </motion.div>
           ))}
         </div>

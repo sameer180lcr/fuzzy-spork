@@ -1,36 +1,35 @@
+import { Link } from "react-router-dom";
+import ZeroXLogo from "./ZeroXLogo";
+import { Linkedin, Twitter } from "lucide-react";
+
 const Footer = () => {
   return (
-    <footer className="py-12 px-6 border-t border-border">
+    <footer className="py-10 px-6 bg-white border-t border-gray-100">
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-foreground flex items-center justify-center">
-              <span className="text-background font-bold text-xs">H</span>
-            </div>
-            <span className="font-semibold tracking-tight">Hirely</span>
+          <div className="flex items-center gap-3">
+            <ZeroXLogo size="sm" />
+            <span className="text-sm text-gray-400">© 2025 ZeroX</span>
           </div>
-          
+
           <nav className="flex items-center gap-8">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Terms
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Docs
-            </a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Contact
-            </a>
+            <Link to="#" className="text-sm text-gray-400 hover:text-gray-900">Privacy</Link>
+            <Link to="#" className="text-sm text-gray-400 hover:text-gray-900">Terms</Link>
+            <Link to="#" className="text-sm text-gray-400 hover:text-gray-900">Docs</Link>
+            <Link to="#" className="text-sm text-gray-400 hover:text-gray-900">Contact</Link>
           </nav>
-          
-          <p className="text-sm text-muted-foreground">
-            © 2025 Hirely. All rights reserved.
-          </p>
+
+          <div className="flex gap-4">
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-900">
+              <Twitter className="w-5 h-5" />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-900">
+              <Linkedin className="w-5 h-5" />
+            </a>
+          </div>
         </div>
       </div>
-    </footer>
+    </footer >
   );
 };
 

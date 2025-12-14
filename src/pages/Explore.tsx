@@ -1,0 +1,387 @@
+import { useState, useMemo, useCallback, memo } from "react";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "@/components/dashboard/Sidebar";
+import { Search, Flame, Clock, DollarSign, Users, MapPin, Briefcase, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// Custom debounce hook for search performance
+const useDebounce = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useMemo(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return debouncedValue;
+};
+
+const allOpportunities = [
+    { id: "1", title: "SaaS Software Data Reviewer", rate: "$30 - $37", minRate: 30, hiredCount: 20, budget: "100", createdDays: 5, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "C", color: "bg-black" }, { letter: "A", color: "bg-gray-700" }] },
+    { id: "2", title: "Database Administrators", rate: "$75 - $100", minRate: 75, hiredCount: 17, budget: "200", createdDays: 2, avatars: [{ letter: "M", color: "bg-blue-800" }] },
+    { id: "3", title: "Mathematics Expert (Master's / PhD)", rate: "$60 - $80", minRate: 60, hiredCount: 174, budget: "250", createdDays: 10, avatars: [{ letter: "T", color: "bg-blue-600" }, { letter: "R", color: "bg-black" }, { letter: "L", color: "bg-blue-900" }] },
+    { id: "4", title: "Digital Annotation Expert", rate: "$16", minRate: 16, hiredCount: 4069, budget: "50", createdDays: 30, avatars: [{ letter: "M", color: "bg-black" }, { letter: "K", color: "bg-blue-700" }] },
+    { id: "5", title: "Physics Expert (Masters/PhDs)", rate: "$65 - $75", minRate: 65, hiredCount: 9, budget: "250", createdDays: 7, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "C", color: "bg-black" }, { letter: "D", color: "bg-gray-800" }] },
+    { id: "6", title: "Life/Health Actuaries", rate: "$75 - $100", minRate: 75, hiredCount: 19, budget: "200", createdDays: 3, avatars: [{ letter: "D", color: "bg-blue-900" }, { letter: "Y", color: "bg-black" }] },
+    { id: "7", title: "Material Science Expert (Masters/PhDs)", rate: "$75 - $85", minRate: 75, hiredCount: 8, budget: "250", createdDays: 14, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "S", color: "bg-blue-800" }, { letter: "O", color: "bg-black" }] },
+    { id: "8", title: "Frontend Software Engineer (React, TypeScript)", rate: "$80 - $120", minRate: 80, hiredCount: 13, budget: "300", createdDays: 1, avatars: [{ letter: "V", color: "bg-black" }, { letter: "R", color: "bg-blue-700" }, { letter: "E", color: "bg-gray-600" }] },
+    { id: "9", title: "Backend Software Engineer: Python", rate: "$80 - $120", minRate: 80, hiredCount: 28, budget: "300", createdDays: 4, avatars: [{ letter: "X", color: "bg-blue-600" }, { letter: "W", color: "bg-black" }] },
+    { id: "10", title: "Biology Experts (Masters/PhDs)", rate: "$65 - $75", minRate: 65, hiredCount: 6, budget: "200", createdDays: 8, avatars: [{ letter: "M", color: "bg-blue-900" }, { letter: "G", color: "bg-gray-800" }, { letter: "R", color: "bg-black" }] },
+    { id: "11", title: "Backend Software Engineer: Go", rate: "$80 - $100", minRate: 80, hiredCount: 12, budget: "250", createdDays: 6, avatars: [{ letter: "T", color: "bg-blue-600" }, { letter: "N", color: "bg-black" }] },
+    { id: "12", title: "Medical Resident (Must be PGY3 or above)", rate: "$110", minRate: 110, hiredCount: 10, budget: "300", createdDays: 2, avatars: [{ letter: "A", color: "bg-black" }, { letter: "M", color: "bg-blue-600" }, { letter: "S", color: "bg-blue-900" }] },
+    { id: "13", title: "Chemistry Expert (Masters/PhDs)", rate: "$65 - $75", minRate: 65, hiredCount: 3, budget: "250", createdDays: 12, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "C", color: "bg-black" }, { letter: "D", color: "bg-gray-700" }] },
+    { id: "14", title: "P&C Actuaries", rate: "$60 - $100", minRate: 60, hiredCount: 2, budget: "200", createdDays: 20, avatars: [{ letter: "G", color: "bg-blue-900" }, { letter: "S", color: "bg-black" }] },
+    { id: "15", title: "Data Scientist (Kaggle-Grandmaster)", rate: "$56 - $77", minRate: 56, hiredCount: 2, budget: "500", createdDays: 9, avatars: [{ letter: "C", color: "bg-black" }, { letter: "A", color: "bg-blue-700" }] },
+    { id: "16", title: "Indonesian Language Expert", rate: "$10 - $14", minRate: 10, hiredCount: 110, budget: "100", createdDays: 15, avatars: [{ letter: "S", color: "bg-blue-600" }, { letter: "M", color: "bg-black" }, { letter: "D", color: "bg-gray-800" }] },
+];
+
+// Memoized Job Card Component - prevents unnecessary re-renders
+const JobCard = memo(({ job, isSelected, onClick }: {
+    job: typeof allOpportunities[0];
+    isSelected: boolean;
+    onClick: () => void
+}) => (
+    <div
+        onClick={onClick}
+        className={`bg-white rounded-xl p-4 border-2 cursor-pointer transition-all ${isSelected ? "border-blue-600 shadow-sm" : "border-gray-100 hover:border-blue-300 hover:shadow-sm"}`}
+    >
+        <h3 className="font-medium text-gray-900 text-sm mb-1 truncate">{job.title}</h3>
+        <p className="text-sm mb-4">
+            <span className="text-blue-600 font-medium">{job.rate}</span>
+            <span className="text-gray-400"> / hour</span>
+        </p>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <div className="flex -space-x-1.5">
+                    {job.avatars.map((avatar, i) => (
+                        <div key={i} className={`w-6 h-6 rounded-full ${avatar.color} flex items-center justify-center text-white text-xs font-bold ring-2 ring-white`}>
+                            {avatar.letter}
+                        </div>
+                    ))}
+                </div>
+                <span className="text-xs text-gray-400">
+                    <span className="text-black font-semibold">{job.hiredCount}</span> hired this month
+                </span>
+            </div>
+            <span className="text-xs text-gray-400">$ {job.budget}</span>
+        </div>
+    </div>
+));
+
+JobCard.displayName = 'JobCard';
+
+// Memoized Job Detail Panel - prevents unnecessary re-renders
+const JobDetailPanel = memo(({ job, onClose }: { job: typeof allOpportunities[0] | null; onClose: () => void }) => {
+    if (!job) return null;
+
+    const applicationSteps = [
+        { name: "Resume", status: "Not done" },
+        { name: "Domain Expert Interview", status: "Not done" },
+        { name: "Rubric Calibration Assessment (A)", status: "Not done" },
+        { name: "Work Authorization", status: "Not done" },
+    ];
+
+    // Calculate progress percentage
+    const completedSteps = 0; // This would come from your application state
+    const progressPercentage = (completedSteps / applicationSteps.length) * 100;
+
+    const navigate = useNavigate();
+
+    return (
+        <div className="fixed inset-0 z-50 flex">
+            {/* Overlay */}
+            <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+
+            {/* Panel */}
+            <div className="relative z-10 w-full max-w-2xl bg-white h-screen overflow-y-auto ml-auto animate-in slide-in-from-right">
+                {/* Header */}
+                <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                    <button
+                        onClick={onClose}
+                        className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
+                        aria-label="Close panel"
+                    >
+                        <ChevronRight className="w-5 h-5 text-gray-500" />
+                    </button>
+                    <div className="text-sm font-medium text-gray-500">
+                        {completedSteps} of {applicationSteps.length} steps completed
+                    </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="p-6">
+                    {/* Job Title and Rate */}
+                    <div className="flex items-start justify-between mb-4">
+                        <h2 className="text-xl font-semibold text-gray-900">{job.title}</h2>
+                        <div className="text-right">
+                            <p className="text-xl font-semibold text-gray-900">{job.rate}</p>
+                            <p className="text-sm text-gray-500">per hour</p>
+                        </div>
+                    </div>
+
+                    {/* Job Meta */}
+                    <div className="flex items-center gap-4 mb-6">
+                        <span className="flex items-center gap-1.5 text-sm text-gray-600">
+                            <Briefcase className="w-4 h-4 text-gray-400" />
+                            Hourly contract
+                        </span>
+                        <span className="flex items-center gap-1.5 text-sm text-gray-600">
+                            <MapPin className="w-4 h-4 text-gray-400" />
+                            Remote
+                        </span>
+                    </div>
+
+                    {/* Company Info */}
+                    <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
+                        <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-bold">Z</span>
+                        </div>
+                        <div>
+                            <p className="font-medium text-gray-900">Posted by ZeroX</p>
+                            <p className="text-sm text-gray-500">zerox.com</p>
+                        </div>
+                    </div>
+
+                    {/* Application Progress */}
+                    <div className="mb-8">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-base font-medium text-gray-900">Application</h3>
+                            <span className="text-sm font-medium text-gray-500">Not started</span>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-100 rounded-full h-2 mb-6">
+                            <div
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${progressPercentage}%` }}
+                            />
+                        </div>
+
+                        {/* Steps */}
+                        <div className="space-y-4">
+                            {applicationSteps.map((step, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
+                                            <span className="text-sm font-medium text-gray-400">{i + 1}</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-900">{step.name}</p>
+                                            <p className="text-xs text-gray-500">{step.status}</p>
+                                        </div>
+                                    </div>
+                                    <div className="w-5 h-5 rounded-full border-2 border-gray-200 flex-shrink-0" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Role Overview */}
+                    <div className="mb-8">
+                        <h3 className="text-base font-medium text-gray-900 mb-3">Role Overview</h3>
+                        <div className="space-y-4 text-sm text-gray-600">
+                            <p>ZeroX is looking for freelance contributors who are able to analyze the output of various B2B SaaS systems. This project involves interpreting data and translating them into high-quality prompt-response data.</p>
+
+                            <div>
+                                <h4 className="font-medium text-gray-900 mb-2">Qualifications</h4>
+                                <ul className="list-disc pl-5 space-y-1">
+                                    <li>Experience with B2B SaaS applications</li>
+                                    <li>Strong analytical and problem-solving skills</li>
+                                    <li>Attention to detail and ability to follow guidelines</li>
+                                    <li>Excellent written communication skills in English</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="font-medium text-gray-900 mb-2">Project Duration</h4>
+                                <p>Ongoing, with flexible hours based on your availability</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Sticky Footer */}
+                <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+                    <Button
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-base font-medium transition-colors"
+                        onClick={() => navigate(`/dashboard/application/${job.id}`)}
+                    >
+                        Continue Application
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+});
+
+JobDetailPanel.displayName = 'JobDetailPanel';
+
+const ITEMS_PER_PAGE = 16;
+
+const Explore = () => {
+    const [activeFilter, setActiveFilter] = useState("best");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedJob, setSelectedJob] = useState<typeof allOpportunities[0] | null>(null);
+
+    // Debounce search for better performance (300ms delay)
+    const debouncedSearch = useDebounce(searchQuery, 300);
+
+    // Memoized filtering and sorting - only recalculates when dependencies change
+    const filteredAndSortedOpportunities = useMemo(() => {
+        let filtered = allOpportunities.filter(opp =>
+            opp.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+        );
+
+        switch (activeFilter) {
+            case "trending":
+                return [...filtered].sort((a, b) => b.hiredCount - a.hiredCount);
+            case "newest":
+                return [...filtered].sort((a, b) => a.createdDays - b.createdDays);
+            case "pay":
+                return [...filtered].sort((a, b) => b.minRate - a.minRate);
+            default:
+                return [...filtered].sort((a, b) => (b.hiredCount * 0.5 + b.minRate * 0.5) - (a.hiredCount * 0.5 + a.minRate * 0.5));
+        }
+    }, [debouncedSearch, activeFilter]);
+
+    // Memoized pagination
+    const paginatedOpportunities = useMemo(() => {
+        const totalPages = Math.ceil(filteredAndSortedOpportunities.length / ITEMS_PER_PAGE);
+        const validPage = Math.min(currentPage, totalPages || 1);
+        return filteredAndSortedOpportunities.slice((validPage - 1) * ITEMS_PER_PAGE, validPage * ITEMS_PER_PAGE);
+    }, [filteredAndSortedOpportunities, currentPage]);
+
+    const totalPages = Math.ceil(filteredAndSortedOpportunities.length / ITEMS_PER_PAGE);
+
+    // Memoized callbacks - prevents re-creating functions on every render
+    const handleFilterChange = useCallback((filter: string) => {
+        setActiveFilter(filter);
+        setCurrentPage(1);
+    }, []);
+
+    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1);
+    }, []);
+
+    const handleJobSelect = useCallback((job: typeof allOpportunities[0]) => {
+        setSelectedJob(job);
+    }, []);
+
+    const handleClosePanel = useCallback(() => {
+        setSelectedJob(null);
+    }, []);
+
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+    }, []);
+
+    return (
+        <div className="min-h-screen bg-white">
+            <Sidebar />
+            <div className="ml-16">
+                {/* Header */}
+                <div className="px-8 pt-6 pb-4">
+                    <h1 className="text-xl font-semibold text-gray-900 mb-5">Explore opportunities</h1>
+
+                    {/* Search & Filters */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <button className="p-2.5 rounded-lg border border-gray-200 text-gray-400 hover:border-gray-300">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                            </button>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Type to search"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    className="h-10 w-56 rounded-lg border border-gray-200 bg-white pl-9 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-400"
+                                />
+                            </div>
+                            <Button 
+                                variant="outline" 
+                                className="h-10 px-4 border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                                onClick={() => window.location.href = '/blog'}
+                            >
+                                Know More
+                            </Button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {[
+                                { id: "best", icon: null, label: "Best match" },
+                                { id: "trending", icon: Flame, label: "Trending" },
+                                { id: "newest", icon: Clock, label: "Newest" },
+                                { id: "pay", icon: DollarSign, label: "Most pay" },
+                            ].map((filter) => (
+                                <button
+                                    key={filter.id}
+                                    onClick={() => handleFilterChange(filter.id)}
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeFilter === filter.id ? "border-2 border-blue-600 text-blue-600 bg-blue-50" : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"}`}
+                                >
+                                    {filter.icon && <filter.icon className="w-4 h-4" />}
+                                    {!filter.icon && <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>}
+                                    {filter.label}
+                                </button>
+                            ))}
+                            <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-800"><Users className="w-4 h-4" /> Refer & earn</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="border-t border-gray-100 mx-8"></div>
+
+                {/* Results count */}
+                <div className="px-8 pt-4">
+                    <p className="text-sm text-gray-500">
+                        Showing {paginatedOpportunities.length} of {filteredAndSortedOpportunities.length} opportunities
+                        {debouncedSearch && ` for "${debouncedSearch}"`}
+                    </p>
+                </div>
+
+                {/* Opportunities Grid - uses memoized cards */}
+                <div className="p-8 pt-4">
+                    <div className="grid grid-cols-4 gap-4">
+                        {paginatedOpportunities.map((opp) => (
+                            <JobCard
+                                key={opp.id}
+                                job={opp}
+                                isSelected={selectedJob?.id === opp.id}
+                                onClick={() => handleJobSelect(opp)}
+                            />
+                        ))}
+                    </div>
+
+                    {paginatedOpportunities.length === 0 && (
+                        <div className="text-center py-12 text-gray-500">No opportunities found. <button onClick={() => setSearchQuery("")} className="text-blue-600 hover:underline">Clear search</button></div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-1 mt-8">
+                            <button onClick={() => handlePageChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="w-8 h-8 rounded text-gray-400 hover:text-gray-600 flex items-center justify-center disabled:opacity-50">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                            </button>
+                            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((page) => (
+                                <button key={page} onClick={() => handlePageChange(page)} className={`w-8 h-8 rounded text-sm font-medium transition-colors ${currentPage === page ? "bg-blue-600 text-white" : "text-gray-500 hover:bg-gray-100"}`}>{page}</button>
+                            ))}
+                            <button onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="w-8 h-8 rounded text-gray-400 hover:text-gray-600 flex items-center justify-center disabled:opacity-50">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <JobDetailPanel job={selectedJob} onClose={handleClosePanel} />
+        </div>
+    );
+};
+
+export default Explore;

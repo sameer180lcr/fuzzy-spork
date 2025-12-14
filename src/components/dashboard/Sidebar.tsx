@@ -1,36 +1,78 @@
 import { cn } from "@/lib/utils";
 import { NavLink } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Briefcase, 
-  Users, 
-  MessageSquare, 
+import { motion } from "framer-motion";
+import {
+  Search,
+  Home,
+  Users,
+  DollarSign,
+  User,
+  MessageCircle,
   Settings,
-  LogOut
+  Brain,
 } from "lucide-react";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Briefcase, label: "Jobs", href: "/dashboard/jobs" },
-  { icon: Users, label: "Candidates", href: "/dashboard/candidates" },
-  { icon: MessageSquare, label: "Interviews", href: "/dashboard/interviews" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  { icon: Search, label: "Explore", href: "/dashboard/explore" },
+  { icon: Brain, label: "Interview", href: "/expert-interview" },
+  { icon: Home, label: "Home", href: "/dashboard" },
+  { icon: User, label: "Profile", href: "/dashboard/profile" },
 ];
+
+// Animated X Logo
+const AnimatedXLogo = () => (
+  <motion.svg viewBox="0 0 40 40" className="w-9 h-9">
+    <motion.path
+      d="M10 10 L30 30"
+      stroke="url(#sidebarGrad)"
+      strokeWidth="5"
+      strokeLinecap="round"
+      fill="none"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    />
+    <motion.path
+      d="M30 10 L10 30"
+      stroke="url(#sidebarGrad)"
+      strokeWidth="5"
+      strokeLinecap="round"
+      fill="none"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
+    />
+    <motion.circle
+      cx="30"
+      cy="10"
+      r="3"
+      fill="#3B82F6"
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+      transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
+    />
+    <defs>
+      <linearGradient id="sidebarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#8B5CF6" />
+        <stop offset="100%" stopColor="#3B82F6" />
+      </linearGradient>
+    </defs>
+  </motion.svg>
+);
 
 const Sidebar = () => {
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col">
-      <div className="p-6 border-b border-border">
-        <NavLink to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-            <span className="text-background font-bold text-sm">H</span>
-          </div>
-          <span className="font-semibold text-lg tracking-tight">Hirely</span>
+    <aside className="fixed left-0 top-0 h-screen w-16 bg-white border-r border-gray-100 flex flex-col">
+      {/* Animated X Logo */}
+      <div className="h-14 flex items-center justify-center border-b border-gray-50">
+        <NavLink to="/">
+          <AnimatedXLogo />
         </NavLink>
       </div>
-      
-      <nav className="flex-1 p-4">
-        <ul className="space-y-1">
+
+      {/* Navigation */}
+      <nav className="flex-1 py-2">
+        <ul className="space-y-1 px-2">
           {navItems.map((item) => (
             <li key={item.label}>
               <NavLink
@@ -38,28 +80,47 @@ const Sidebar = () => {
                 end={item.href === "/dashboard"}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    "flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 group relative mx-auto",
                     isActive
-                      ? "bg-secondary text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
                   )
                 }
               >
-                <item.icon className="w-4 h-4" />
-                {item.label}
+                <item.icon className="w-5 h-5" />
+                <span className="absolute left-full ml-3 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-50 font-medium">
+                  {item.label}
+                </span>
               </NavLink>
             </li>
           ))}
         </ul>
       </nav>
-      
-      <div className="p-4 border-t border-border">
-        <NavLink 
-          to="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full"
+
+      {/* Bottom icons */}
+      <div className="py-4 px-2 space-y-1">
+        <NavLink
+          to="/dashboard/messages"
+          className="flex items-center justify-center w-12 h-12 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200 mx-auto"
         >
-          <LogOut className="w-4 h-4" />
-          Sign out
+          <MessageCircle className="w-5 h-5" />
+        </NavLink>
+        <NavLink
+          to="/dashboard/settings"
+          className="flex items-center justify-center w-12 h-12 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200 mx-auto"
+        >
+          <Settings className="w-5 h-5" />
+        </NavLink>
+      </div>
+
+      {/* Avatar */}
+      <div className="py-4 px-2 flex justify-center border-t border-gray-100">
+        <NavLink to="/dashboard/profile" className="w-9 h-9 rounded-full overflow-hidden">
+          <div className="w-full h-full bg-blue-600 flex items-center justify-center">
+            <span className="text-white text-xs font-semibold">
+              {(localStorage.getItem("userName") || "U").charAt(0).toUpperCase()}
+            </span>
+          </div>
         </NavLink>
       </div>
     </aside>

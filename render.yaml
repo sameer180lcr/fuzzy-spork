@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: talent-forge-ai
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview
+    envVars:
+      - key: NODE_VERSION
+        value: 18.x
+      - key: VITE_SUPABASE_URL
+        required: true
+      - key: VITE_SUPABASE_ANON_KEY
+        required: true
+    staticPublishPath: ./dist
+    autoDeploy: true

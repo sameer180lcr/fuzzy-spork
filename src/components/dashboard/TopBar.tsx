@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, Settings } from "lucide-react";
 
 interface TopBarProps {
   title: string;
@@ -8,30 +7,23 @@ interface TopBarProps {
 
 const TopBar = ({ title, subtitle }: TopBarProps) => {
   return (
-    <header className="h-16 border-b border-border bg-background flex items-center justify-between px-8">
+    <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6">
       <div>
-        <h1 className="text-lg font-semibold">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+        <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+        {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
       </div>
-      
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="h-9 w-64 rounded-lg border border-border bg-secondary/30 pl-9 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-        
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
-        </Button>
-        
-        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-          <span className="text-xs font-medium">JD</span>
-        </div>
+
+      <div className="flex items-center gap-3">
+        <button className="p-2 rounded-lg hover:bg-gray-50 text-gray-400 transition-colors">
+          <Search className="w-5 h-5" />
+        </button>
+        <button className="p-2 rounded-lg hover:bg-gray-50 text-gray-400 transition-colors relative">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-violet-500 rounded-full ring-2 ring-white" />
+        </button>
+        <button className="p-2 rounded-lg hover:bg-gray-50 text-gray-400 transition-colors">
+          <Settings className="w-5 h-5" />
+        </button>
       </div>
     </header>
   );

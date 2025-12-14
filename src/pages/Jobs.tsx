@@ -10,64 +10,50 @@ import {
   Filter, 
   Search,
   Sparkles,
-  X
+  X,
+  Briefcase,
+  MapPin,
+  Clock,
+  DollarSign,
+  Code2,
+  Database,
+  Paintbrush,
+  Smartphone,
+  Server,
+  BarChart3,
+  Lock,
+  Globe,
+  Cloud,
+  Shield
 } from "lucide-react";
 
+const generateJob = (title: string, department: string, type: string, location: string) => ({
+  title,
+  department,
+  type,
+  location,
+  applicants: Math.floor(Math.random() * 200) + 10,
+  daysOpen: Math.floor(Math.random() * 30) + 1,
+  status: "active" as const,
+});
+
 const jobs = [
-  {
-    title: "Senior ML Engineer",
-    department: "Engineering",
-    type: "Full-time",
-    location: "Remote",
-    applicants: 156,
-    daysOpen: 5,
-    status: "active" as const,
-  },
-  {
-    title: "Product Designer",
-    department: "Design",
-    type: "Full-time",
-    location: "San Francisco",
-    applicants: 89,
-    daysOpen: 12,
-    status: "active" as const,
-  },
-  {
-    title: "Backend Engineer",
-    department: "Engineering",
-    type: "Full-time",
-    location: "New York",
-    applicants: 234,
-    daysOpen: 8,
-    status: "active" as const,
-  },
-  {
-    title: "Data Analyst",
-    department: "Data",
-    type: "Contract",
-    location: "Remote",
-    applicants: 67,
-    daysOpen: 3,
-    status: "active" as const,
-  },
-  {
-    title: "DevOps Engineer",
-    department: "Engineering",
-    type: "Full-time",
-    location: "Austin",
-    applicants: 45,
-    daysOpen: 15,
-    status: "paused" as const,
-  },
-  {
-    title: "Legal Counsel",
-    department: "Legal",
-    type: "Full-time",
-    location: "San Francisco",
-    applicants: 23,
-    daysOpen: 20,
-    status: "closed" as const,
-  },
+  generateJob("Senior ML Engineer", "Engineering", "Full-time", "Remote"),
+  generateJob("Frontend Developer", "Engineering", "Full-time", "San Francisco"),
+  generateJob("UX Designer", "Design", "Contract", "Remote"),
+  generateJob("DevOps Engineer", "Engineering", "Full-time", "New York"),
+  generateJob("Data Scientist", "Data Science", "Full-time", "Remote"),
+  generateJob("Mobile Developer", "Engineering", "Full-time", "Austin"),
+  generateJob("Product Manager", "Product", "Full-time", "Seattle"),
+  generateJob("Backend Engineer", "Engineering", "Full-time", "Remote"),
+  generateJob("UI/UX Designer", "Design", "Contract", "Remote"),
+  generateJob("Data Engineer", "Data", "Full-time", "Boston"),
+  generateJob("Security Engineer", "Security", "Full-time", "Remote"),
+  generateJob("Cloud Architect", "Engineering", "Full-time", "Remote"),
+  generateJob("QA Engineer", "Engineering", "Full-time", "Chicago"),
+  generateJob("Technical Writer", "Content", "Part-time", "Remote"),
+  generateJob("Solutions Architect", "Engineering", "Full-time", "Remote"),
+  generateJob("ML Engineer", "AI/ML", "Full-time", "San Francisco"),
 ];
 
 const Jobs = () => {
@@ -75,70 +61,65 @@ const Jobs = () => {
   const [jobDescription, setJobDescription] = useState("");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Sidebar />
       <div className="ml-64">
-        <TopBar title="Jobs" subtitle="Manage your open positions" />
+        <TopBar title="Jobs" subtitle="Browse and manage job postings" />
         
-        <main className="p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Actions Bar */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search jobs..."
-                    className="h-10 w-72 rounded-lg border border-border bg-card pl-10 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <Button variant="outline" className="gap-2">
-                  <Filter className="w-4 h-4" />
-                  Filters
-                </Button>
+        <main className="p-8 bg-white">
+          {/* Actions Bar */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search jobs..."
+                  className="h-10 w-72 rounded-lg border border-border bg-card pl-10 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
               </div>
-              
-              <Button onClick={() => setShowCreateModal(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Create Job
+              <Button variant="outline" className="gap-2">
+                <Filter className="w-4 h-4" />
+                Filters
               </Button>
             </div>
             
-            {/* Status Tabs */}
-            <div className="flex items-center gap-2 mb-6">
-              <Badge variant="secondary" className="px-4 py-1.5 cursor-pointer">
-                All (6)
-              </Badge>
-              <Badge variant="outline" className="px-4 py-1.5 cursor-pointer hover:bg-secondary">
-                Active (4)
-              </Badge>
-              <Badge variant="outline" className="px-4 py-1.5 cursor-pointer hover:bg-secondary">
-                Paused (1)
-              </Badge>
-              <Badge variant="outline" className="px-4 py-1.5 cursor-pointer hover:bg-secondary">
-                Closed (1)
-              </Badge>
-            </div>
-            
-            {/* Jobs Grid */}
-            <div className="grid grid-cols-3 gap-6">
-              {jobs.map((job, index) => (
-                <motion.div
-                  key={`${job.title}-${index}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <JobCard {...job} />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+            <Button onClick={() => setShowCreateModal(true)} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Create Job
+            </Button>
+          </div>
+          
+          {/* Status Tabs */}
+          <div className="flex items-center gap-2 mb-6">
+            <Badge variant="secondary" className="px-4 py-1.5 cursor-pointer">
+              All (16)
+            </Badge>
+            <Badge variant="outline" className="px-4 py-1.5 cursor-pointer hover:bg-secondary">
+              Active (16)
+            </Badge>
+            <Badge variant="outline" className="px-4 py-1.5 cursor-pointer hover:bg-secondary">
+              Paused (0)
+            </Badge>
+            <Badge variant="outline" className="px-4 py-1.5 cursor-pointer hover:bg-secondary">
+              Closed (0)
+            </Badge>
+          </div>
+          
+          {/* Jobs Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {jobs.map((job, index) => (
+              <motion.div
+                key={`${job.title}-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="h-full"
+              >
+                <JobCard {...job} />
+              </motion.div>
+            ))}
+          </div>
         </main>
       </div>
       

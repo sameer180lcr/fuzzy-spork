@@ -1,40 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTA = () => {
   return (
-    <section className="py-24 px-6">
-      <div className="container mx-auto max-w-3xl">
+    <section className="py-24 px-6 bg-[#F5F5F7]">
+      <div className="container mx-auto max-w-3xl text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-foreground text-background rounded-3xl p-12 md:p-16 text-center"
+          className="bento-card gradient-pro p-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Ready to transform your hiring?
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">
+            Ready to transform
+            <br />
+            your hiring?
           </h2>
-          <p className="text-background/70 mb-8 max-w-md mx-auto">
-            Join 500+ companies using AI to find and hire exceptional talent faster than ever.
+          <p className="text-lg text-white/70 mb-10 max-w-md mx-auto">
+            Join 500+ companies using AI to find exceptional talent faster.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button 
-              size="lg" 
-              className="bg-background text-foreground hover:bg-background/90 group"
-            >
+          <Button size="lg" className="bg-white text-[#1D1D1F] hover:bg-white/90 rounded-full h-14 px-8 text-base group" asChild>
+            <Link to="/signup">
               Start free trial
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="lg"
-              className="text-background/80 hover:text-background hover:bg-background/10"
-            >
-              Talk to sales
-            </Button>
-          </div>
+              <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
         </motion.div>
       </div>
     </section>
