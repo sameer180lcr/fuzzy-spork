@@ -19,7 +19,9 @@ export const OLLAMA_MODELS = {
 };
 
 export class OllamaService {
-    private static baseUrl = 'http://localhost:11434/api';
+    private static baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://elsewhere-medieval-amplifier-matters.trycloudflare.com/api'
+        : 'http://localhost:11434/api';
 
     /**
      * Check if Ollama is running and models are available
