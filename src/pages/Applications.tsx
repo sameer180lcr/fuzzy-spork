@@ -2,49 +2,7 @@ import { motion } from "framer-motion";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import { Send, Building2, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
-
-const applications = [
-    {
-        id: "1",
-        title: "Senior Frontend Developer",
-        company: "Apple Inc.",
-        appliedDate: "Dec 5, 2024",
-        status: "interview",
-        stage: "Technical Interview",
-    },
-    {
-        id: "2",
-        title: "Staff Engineer",
-        company: "Stripe",
-        appliedDate: "Dec 3, 2024",
-        status: "review",
-        stage: "Application Review",
-    },
-    {
-        id: "3",
-        title: "Product Designer",
-        company: "Airbnb",
-        appliedDate: "Nov 28, 2024",
-        status: "offered",
-        stage: "Offer Extended",
-    },
-    {
-        id: "4",
-        title: "ML Engineer",
-        company: "OpenAI",
-        appliedDate: "Nov 20, 2024",
-        status: "rejected",
-        stage: "Position Filled",
-    },
-    {
-        id: "5",
-        title: "Backend Developer",
-        company: "Vercel",
-        appliedDate: "Dec 7, 2024",
-        status: "submitted",
-        stage: "Submitted",
-    },
-];
+import { useEffect, useState } from "react";
 
 const statusConfig = {
     submitted: { icon: Send, color: "text-[#86868b]", bg: "bg-[#f5f5f7]", label: "Submitted" },
@@ -55,6 +13,47 @@ const statusConfig = {
 };
 
 const Applications = () => {
+    const [applications, setApplications] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchApplications = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/applications');
+                const data = await response.json();
+
+                // Filter for current user if email is stored
+                const userEmail = localStorage.getItem('userEmail');
+                const filteredData = userEmail
+                    ? data.filter((a: any) => a.email === userEmail)
+                    : data;
+
+                const mappedData = filteredData.map((a: any) => ({
+                    id: a.id || a._id,
+                    title: a.jobTitle,
+                    company: "ZeroX", // Hardcoded for now as it's the main employer in this demo
+                    appliedDate: a.applied,
+                    status: a.status?.toLowerCase() === 'new' ? 'submitted' : a.status?.toLowerCase(),
+                    stage: a.status || "Applied"
+                }));
+                setApplications(mappedData);
+            } catch (error) {
+                console.error("Error fetching applications:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchApplications();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#f5f5f7]">
             <Sidebar />
@@ -89,8 +88,8 @@ const Applications = () => {
                                 <h2 className="text-lg font-semibold text-[#1d1d1f]">All Applications</h2>
                             </div>
                             <div className="divide-y divide-[#e5e5e5]">
-                                {applications.map((app) => {
-                                    const status = statusConfig[app.status as keyof typeof statusConfig];
+                                {applications.length > 0 ? applications.map((app) => {
+                                    const status = statusConfig[app.status as keyof typeof statusConfig] || statusConfig.submitted;
                                     return (
                                         <div key={app.id} className="p-6 hover:bg-[#f5f5f7]/50 transition-colors cursor-pointer">
                                             <div className="flex items-center justify-between">
@@ -120,7 +119,11 @@ const Applications = () => {
                                             </div>
                                         </div>
                                     );
-                                })}
+                                }) : (
+                                    <div className="p-12 text-center text-gray-500">
+                                        No applications found.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>

@@ -14,7 +14,8 @@ export interface ChatMessage {
 // Configuration for models - maintaining user's specific model names
 export const OLLAMA_MODELS = {
     REASONER: 'gemma3:1b',
-    GENERATOR: 'gemma3:1b' // Corrected model tag
+    GENERATOR: 'gemma3:1b', // Corrected model tag
+    VISION: 'qwen3-v1:4b'
 };
 
 export class OllamaService {

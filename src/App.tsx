@@ -3,20 +3,36 @@ import { Suspense, lazy, Component, ReactNode } from "react";
 import { Toaster } from "./components/ui/toaster";
 
 // Lazy load pages for better initial load performance
+// Main App Pages
 const Index = lazy(() => import("./pages/Index"));
+const Login = lazy(() => import("./pages/Login"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const Verification = lazy(() => import("./pages/Verification"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
+const TestSupabase = lazy(() => import("./components/TestSupabase"));
+
+// Dashboard Pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Earnings = lazy(() => import("./pages/Earnings"));
 const Profile = lazy(() => import("./pages/Profile"));
-const Login = lazy(() => import("./pages/Login"));
-const SignUp = lazy(() => import("./pages/SignUp"));
 const JobDetail = lazy(() => import("./pages/JobDetail"));
 const ApplicationProcess = lazy(() => import("./pages/ApplicationProcess"));
 const ExpertInterview = lazy(() => import("./pages/ExpertInterview"));
+const ExpertInterview2 = lazy(() => import("./pages/ExpertInterview2"));
 const BlogPage = lazy(() => import("./pages/BlogPage"));
 const NewListing = lazy(() => import("./pages/NewListing"));
-const Verification = lazy(() => import("./pages/Verification"));
-const TestSupabase = lazy(() => import("./components/TestSupabase"));
+
+// Company Layout and Pages
+const CompanyLayout = lazy(() => import("./components/company/CompanyLayout"));
+const CompanyDashboard = lazy(() => import("./pages/company/CompanyDashboard"));
+const CreateJob = lazy(() => import("./pages/company/CreateJob"));
+const JobListings = lazy(() => import("./pages/company/JobListings"));
+const Applicants = lazy(() => import("./pages/company/Applicants"));
+const ApplicantDetail = lazy(() => import("./pages/company/ApplicantDetail"));
+const CompanyPayments = lazy(() => import("./pages/company/CompanyPayments"));
+const Notifications = lazy(() => import("./pages/company/Notifications"));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -92,6 +108,13 @@ function App() {
                             <Route path="/signup" element={<SignUp />} />
 
                             {/* Dashboard Routes */}
+                            {/* Public Routes */}
+                            <Route path="/verification" element={<Verification />} />
+                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                            <Route path="/test-supabase" element={<TestSupabase />} />
+
+                            {/* User Dashboard Routes */}
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/dashboard/explore" element={<Explore />} />
                             <Route path="/dashboard/earnings" element={<Earnings />} />
@@ -99,10 +122,22 @@ function App() {
                             <Route path="/dashboard/jobs/:id" element={<JobDetail />} />
                             <Route path="/dashboard/application/:id" element={<ApplicationProcess />} />
                             <Route path="/expert-interview" element={<ExpertInterview />} />
+                            <Route path="/expert-interview-2" element={<ExpertInterview2 />} />
                             <Route path="/blog" element={<BlogPage />} />
                             <Route path="/new-listing" element={<NewListing />} />
-                            <Route path="/verification" element={<Verification />} />
-                            <Route path="/test-supabase" element={<TestSupabase />} />
+
+                            {/* Company Dashboard Routes */}
+                            <Route path="/company" element={<CompanyLayout />}>
+                                <Route path="dashboard" element={<CompanyDashboard />} />
+                                <Route path="jobs" element={<JobListings />} />
+                                <Route path="jobs/new" element={<CreateJob />} />
+                                <Route path="jobs/edit/:id" element={<CreateJob />} />
+                                <Route path="applicants" element={<Applicants />} />
+                                <Route path="applicants/:id" element={<ApplicantDetail />} />
+                                <Route path="payments" element={<CompanyPayments />} />
+                                <Route path="notifications" element={<Notifications />} />
+                                <Route index element={<CompanyDashboard />} />
+                            </Route>
                         </Routes>
                     </Suspense>
                     <Toaster />

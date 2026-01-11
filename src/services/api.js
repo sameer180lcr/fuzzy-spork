@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8080/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Helper function to handle responses
 const handleResponse = async (response) => {
@@ -59,7 +59,47 @@ export const authApi = {
   },
 };
 
+// Verification API
+export const verificationApi = {
+  // Submit verification data
+  submitVerification: async (verificationData) => {
+    const response = await fetch(`${API_URL}/verification`, {
+      method: 'POST',
+      headers: getAuthHeader(),
+      body: JSON.stringify(verificationData),
+    });
+    return handleResponse(response);
+  },
+
+  // Get verification status
+  getVerificationStatus: async (userId) => {
+    const response = await fetch(`${API_URL}/verification/status/${userId}`, {
+      headers: getAuthHeader(),
+    });
+    return handleResponse(response);
+  },
+
+  // Get all verification requests (admin)
+  getAllVerifications: async () => {
+    const response = await fetch(`${API_URL}/verification`, {
+      headers: getAuthHeader(),
+    });
+    return handleResponse(response);
+  },
+
+  // Update verification status (admin)
+  updateVerificationStatus: async (id, statusData) => {
+    const response = await fetch(`${API_URL}/verification/${id}/status`, {
+      method: 'PATCH',
+      headers: getAuthHeader(),
+      body: JSON.stringify(statusData),
+    });
+    return handleResponse(response);
+  },
+};
+
 // Add more API methods as needed
 export default {
   auth: authApi,
+  verification: verificationApi,
 };

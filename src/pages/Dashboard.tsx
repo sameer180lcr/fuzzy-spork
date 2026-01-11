@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Button } from "@/components/ui/button";
-import { FileText, CheckCircle, ArrowRight, CreditCard, Briefcase, Clock, Star, CheckSquare, ChevronRight, MapPin, Check } from "lucide-react";
-import { useState, memo, useCallback } from "react";
+import { FileText, CheckCircle, ArrowRight, CreditCard, Briefcase, Clock, Star, CheckSquare, ChevronRight, MapPin, Check, X } from "lucide-react";
+import { useState, memo, useCallback, useEffect } from "react";
 
 // Detail Panel Component
 const DetailPanel = memo(({ item, type, onClose }: { item: any | null; type: string; onClose: () => void }) => {
@@ -131,21 +131,25 @@ const DetailPanel = memo(({ item, type, onClose }: { item: any | null; type: str
 
           {/* Description */}
           <div className="mb-6">
-            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{getDescription(item.title)}</p>
+            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+              {item.description || getDescription(item.title)}
+            </p>
           </div>
 
           {/* Qualifications */}
-          <div className="mb-6">
-            <h3 className="font-medium text-gray-900 mb-3">Ideal Qualifications:</h3>
-            <ul className="space-y-2">
-              {getQualifications(item.title).map((qual, i) => (
-                <li key={i} className="text-sm text-gray-600 flex gap-2">
-                  <span className="text-blue-600">•</span>
-                  <span>Have a <span className="text-blue-600 font-medium">{qual.includes("Masters") || qual.includes("PhD") ? qual.split(" ").slice(1, 5).join(" ") : ""}</span>{qual.includes("Masters") || qual.includes("PhD") ? qual.split(" ").slice(5).join(" ") : qual}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {(item.qualifications?.length > 0 || getQualifications(item.title).length > 0) && (
+            <div className="mb-6">
+              <h3 className="font-medium text-gray-900 mb-3">Ideal Qualifications:</h3>
+              <ul className="space-y-2">
+                {(item.qualifications?.length > 0 ? item.qualifications : getQualifications(item.title)).map((qual: string, i: number) => (
+                  <li key={i} className="text-sm text-gray-600 flex gap-2">
+                    <span className="text-blue-600">•</span>
+                    <span>{qual}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
         <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
           <Button
@@ -175,6 +179,8 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("applications");
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [selectedType, setSelectedType] = useState<string>("");
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleCardClick = useCallback((item: any, type: string) => {
     setSelectedItem(item);
@@ -186,25 +192,43 @@ const Dashboard = () => {
     setSelectedType("");
   }, []);
 
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const userEmail = localStorage.getItem("userEmail");
+        const url = userEmail
+          ? `http://localhost:5000/api/applications?email=${encodeURIComponent(userEmail)}`
+          : 'http://localhost:5000/api/applications'; // Fallback or maybe empty?
+
+        const response = await fetch(url);
+        const data = await response.json();
+        setApplications(data.map((a: any) => ({
+          id: a.id || a._id,
+          title: a.jobTitle,
+          company: "ZeroX",
+          rate: a.rate || "$50 - $80/ hour",
+          type: "Hourly contract",
+          startDate: a.applied,
+          status: a.status,
+          description: a.details?.summary || "",
+          qualifications: [],
+        })));
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApplications();
+  }, []);
+
   // Tab content data
   const tabContent = {
-    contracts: [
-      { id: 1, title: "Full Stack Developer", company: "TechCorp", rate: "$85/hr", status: "Active", startDate: "Nov 1, 2024" },
-    ],
-    offers: [
-      { id: 1, title: "Backend Engineer", company: "StartupX", rate: "$90/hr", status: "Pending", deadline: "Dec 15, 2024" },
-    ],
-    applications: [
-      { id: 1, title: "Competitive Math Expert", rate: "$50 - $100/ hour", type: "Hourly contract", company: "Mercor", startDate: "11/04/25", status: "In Progress" },
-      { id: 2, title: "Frontend Software Engineer", rate: "$80 - $120/ hour", type: "Hourly contract", company: "ZeroX", startDate: "11/10/25", status: "Submitted" },
-    ],
-    assessments: [
-      { id: 1, title: "Technical Assessment", type: "Coding", duration: "2 hours", status: "Pending" },
-    ],
-    saved: [
-      { id: 1, title: "Data Scientist (Kaggle-Grandmaster)", rate: "$56 - $77/hr", company: "Mercor" },
-      { id: 2, title: "Medical Resident", rate: "$110/hr", company: "ZeroX" },
-    ],
+    contracts: [],
+    offers: [],
+    applications: applications,
+    assessments: [],
+    saved: [],
   };
 
   const renderTabContent = () => {
@@ -257,26 +281,35 @@ const Dashboard = () => {
         );
 
       case "applications":
-        return tabContent.applications.map((item) => (
-          <div key={item.id} onClick={() => handleCardClick(item, "applications")} className="bg-white rounded-lg border border-gray-200 p-5 hover:border-blue-300 transition-all cursor-pointer">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><FileText className="w-5 h-5 text-blue-600" /></div>
-                <div>
-                  <h3 className="font-medium text-gray-900">{item.title}</h3>
-                  <p className="text-sm text-gray-500">{item.rate} • {item.type} • {item.company}</p>
+        return tabContent.applications.length > 0 ? (
+          tabContent.applications.map((item) => (
+            <div key={item.id} onClick={() => handleCardClick(item, "applications")} className="bg-white rounded-lg border border-gray-200 p-5 hover:border-blue-300 transition-all cursor-pointer">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><FileText className="w-5 h-5 text-blue-600" /></div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">{item.title}</h3>
+                    <p className="text-sm text-gray-500">{item.rate} • {item.type} • {item.company}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${item.status === "In Progress" ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"}`}>{item.status}</span>
+                  <p className="text-sm text-gray-400">Started on {item.startDate}</p>
+                  <span className="text-sm text-blue-600 font-medium flex items-center gap-1">
+                    Continue <ArrowRight className="w-4 h-4" />
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
-                <span className={`px-2 py-1 text-xs rounded-full font-medium ${item.status === "In Progress" ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"}`}>{item.status}</span>
-                <p className="text-sm text-gray-400">Started on {item.startDate}</p>
-                <span className="text-sm text-blue-600 font-medium flex items-center gap-1">
-                  Continue <ArrowRight className="w-4 h-4" />
-                </span>
-              </div>
             </div>
+          ))
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            No active applications.
+            <button onClick={() => navigate("/dashboard/explore")} className="text-blue-600 hover:underline ml-1">
+              Explore jobs
+            </button>
           </div>
-        ));
+        );
 
       case "assessments":
         return tabContent.assessments.length > 0 ? (
@@ -326,53 +359,82 @@ const Dashboard = () => {
     }
   };
 
+  // Task visibility state
+  const [showPaymentTask, setShowPaymentTask] = useState(() => !localStorage.getItem("task_payment_done"));
+  const [showProfileTask, setShowProfileTask] = useState(() => !localStorage.getItem("task_profile_done"));
+
+  const handleTaskAction = (task: "payment" | "profile") => {
+    if (task === "payment") {
+      localStorage.setItem("task_payment_done", "true");
+      setShowPaymentTask(false);
+      navigate("/dashboard/earnings");
+    } else {
+      localStorage.setItem("task_profile_done", "true");
+      setShowProfileTask(false);
+      navigate("/dashboard/profile");
+    }
+  };
+
+  const dismissTask = (task: "payment" | "profile", e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (task === "payment") {
+      localStorage.setItem("task_payment_done", "true");
+      setShowPaymentTask(false);
+    } else {
+      localStorage.setItem("task_profile_done", "true");
+      setShowProfileTask(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50/50">
       <Sidebar />
       <div className="ml-16">
-        {/* Header */}
         <div className="bg-white border-b border-gray-100 px-8 py-6">
-          <h1 className="text-xl font-semibold text-gray-900">Welcome back, sameer!</h1>
+          <h1 className="text-xl font-semibold text-gray-900">Welcome back, {localStorage.getItem("userName") || "User"}!</h1>
         </div>
 
         <main className="p-8">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            {/* Important Tasks */}
-            <div className="mb-8">
-              <p className="text-blue-600 text-sm font-medium mb-4">Important Tasks (2)</p>
 
-              <div className="grid grid-cols-2 gap-4 max-w-2xl">
-                {/* Setup Payments */}
-                <div className="bg-white rounded-lg p-5 border border-gray-200">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-blue-600" />
+            {(showPaymentTask || showProfileTask) && (
+              <div className="mb-8">
+                <p className="text-blue-600 text-sm font-medium mb-4">Important Tasks ({(showPaymentTask ? 1 : 0) + (showProfileTask ? 1 : 0)})</p>
+                <div className="grid grid-cols-2 gap-4 max-w-2xl">
+                  {showPaymentTask && (
+                    <div className="bg-white rounded-lg p-5 border border-gray-200 relative group">
+                      <button onClick={(e) => dismissTask("payment", e)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><CreditCard className="w-5 h-5 text-blue-600" /></div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900 mb-1">Setup Your Payments</h3>
+                          <p className="text-sm text-gray-500 mb-4">Add your <span className="text-blue-600">payment details</span> to start getting paid.</p>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 text-sm" onClick={() => handleTaskAction("payment")}>Setup Now</Button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">Setup Your Payments</h3>
-                      <p className="text-sm text-gray-500 mb-4">Add your <span className="text-blue-600">payment details</span> to start getting paid.</p>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 text-sm" onClick={() => navigate("/dashboard/earnings")}>Setup Now</Button>
+                  )}
+                  {showProfileTask && (
+                    <div className="bg-white rounded-lg p-5 border border-gray-200 relative group">
+                      <button onClick={(e) => dismissTask("profile", e)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center"><CheckCircle className="w-5 h-5 text-blue-600" /></div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900 mb-1">Complete Your Profile</h3>
+                          <p className="text-sm text-gray-500 mb-4">Completed profiles are <span className="text-blue-600">52% more likely</span> to be hired.</p>
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 text-sm" onClick={() => handleTaskAction("profile")}>Complete now</Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Complete Profile */}
-                <div className="bg-white rounded-lg p-5 border border-gray-200">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">Complete Your Profile</h3>
-                      <p className="text-sm text-gray-500 mb-4">Completed profiles are <span className="text-blue-600">52% more likely</span> to be hired.</p>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 text-sm" onClick={() => navigate("/dashboard/profile")}>Complete now</Button>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
               <nav className="flex gap-8">
                 {[
@@ -394,7 +456,6 @@ const Dashboard = () => {
               </nav>
             </div>
 
-            {/* Tab Content */}
             <div className="space-y-4">
               {renderTabContent()}
             </div>

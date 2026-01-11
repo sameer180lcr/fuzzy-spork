@@ -1,8 +1,9 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Features from "@/components/Features";
-import HowItWorks from "@/components/HowItWorks";
-import CTA from "@/components/CTA";
+import HeroShowcaseCarousel from "@/components/HeroShowcaseCarousel";
+import IntegratedAiSuite from "@/components/IntegratedAiSuite";
+import ImplementationServicesSection from "@/components/ImplementationServicesSection";
+import StripeCtaBlock from "@/components/StripeCtaBlock";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -11,9 +12,10 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
-        <Features />
-        <HowItWorks />
-        <CTA />
+        <HeroShowcaseCarousel />
+        <IntegratedAiSuite />
+        <StripeCtaBlock />
+        <ImplementationServicesSection />
       </main>
       <Footer />
     </div>

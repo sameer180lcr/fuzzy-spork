@@ -1,15 +1,35 @@
 services:
+  # Frontend Service
   - type: web
-    name: talent-forge-ai
-    env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm run preview
+    name: talent-forge-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: dist
+    rootDir: .
     envVars:
-      - key: NODE_VERSION
-        value: 18.x
+      - key: VITE_API_URL
+        value: https://talent-forge-backend.onrender.com/api
       - key: VITE_SUPABASE_URL
         required: true
       - key: VITE_SUPABASE_ANON_KEY
         required: true
-    staticPublishPath: ./dist
+    autoDeploy: true
+
+  # Backend Service  
+  - type: web
+    name: talent-forge-backend
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: NODE_VERSION
+        value: 18.x
+    healthCheckPath: /health
     autoDeploy: true

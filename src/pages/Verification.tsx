@@ -11,6 +11,9 @@ import {
   VerificationChecks 
 } from "@/lib/validation";
 import { useToast } from "@/components/ui/use-toast";
+import { verificationApi } from "@/services/api";
+
+const getUserID = () => localStorage.getItem("userEmail") || "test_user";
 
 type VerificationStep = 'company' | 'representatives' | 'verification' | 'review' | 'success';
 
@@ -44,16 +47,46 @@ const Verification = () => {
   };
 
   const handleSubmit = async () => {
+    if (!companyData || !representatives.length || !verificationChecks) {
+      toast({
+        title: "Error",
+        description: "Missing required information. Please complete all steps.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setCompletedSteps(prev => [...prev, 'review']);
     
-    toast({
-      title: "Submitted",
-      description: "Your verification request has been received.",
-    });
+    try {
+      const userId = getUserID();
+
+      const verificationData = {
+        userId,
+        companyData,
+        representatives,
+        verificationChecks
+      };
+
+      await verificationApi.submitVerification(verificationData);
+      
+      setIsSubmitted(true);
+      setCompletedSteps(prev => [...prev, 'review']);
+      
+      toast({
+        title: "Submitted Successfully",
+        description: "Your verification request has been received and is now under review.",
+      });
+    } catch (error: any) {
+      console.error('Verification submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: error.message || "Failed to submit verification. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {

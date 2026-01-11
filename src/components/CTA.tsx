@@ -22,12 +22,19 @@ const CTA = () => {
           <p className="text-lg text-white/70 mb-10 max-w-md mx-auto">
             Join 500+ companies using AI to find exceptional talent faster.
           </p>
-          <Button size="lg" className="bg-white text-[#1D1D1F] hover:bg-white/90 rounded-full h-14 px-8 text-base group" asChild>
-            <Link to="/signup">
-              Start free trial
-              <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
+          <div className="flex flex-col items-center">
+            <Button size="lg" className="bg-white text-[#1D1D1F] hover:bg-white/90 rounded-full h-14 px-8 text-base group mb-4" asChild>
+              <Link to="/signup">
+                Start free trial
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <p className="text-xs text-white/70 text-center max-w-xs">
+              By clicking "Start free trial", you agree to our{' '}
+              <Link to="/terms-and-conditions" className="text-white underline hover:no-underline">Terms</Link> and{' '}
+              <Link to="/privacy-policy" className="text-white underline hover:no-underline">Privacy Policy</Link>.
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>

@@ -1,82 +1,71 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import AiLabsHeroMock from "./AiLabsHeroMock";
 
 const Hero = () => {
   return (
-    <section className="pt-36 pb-24 px-6 bg-[#F5F5F7]">
-      <div className="container mx-auto max-w-5xl text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-        >
-          <span className="inline-flex items-center px-4 py-2 rounded-full bg-white text-sm font-medium border border-[#1D1D1F]/10 shadow-sm mb-8">
-            <span className="w-2 h-2 rounded-full gradient-pro mr-2" />
-            <span className="text-[#1D1D1F]/70">AI-powered hiring platform</span>
-          </span>
-        </motion.div>
+    <section className="relative overflow-hidden pt-16 lg:pt-20 pb-20">
+      <div className="absolute inset-0 bg-white" />
+      <div
+        className="absolute inset-0"
+        style={{
+          clipPath: "polygon(0 0, 100% 0, 100% 72%, 0% 100%)",
+          background:
+            "linear-gradient(115deg, #9b2c2c 0%, #b83280 18%, #6b46c1 35%, #3182ce 55%, #38b2ac 72%, #ecc94b 100%)",
+        }}
+      />
+      <div className="absolute inset-0 bg-white/85" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.22]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(15,23,42,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.08) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl md:text-7xl font-bold tracking-tight text-[#1D1D1F] mb-6 leading-[1.05]"
-        >
-          Hire the best talent.
-          <br />
-          <span className="gradient-pro-text">10x faster.</span>
-        </motion.h1>
+      <div className="relative container mx-auto max-w-7xl px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_560px] gap-10 lg:gap-14 items-start">
+          {/* Left side - Text content */}
+          <div className="text-left pt-10 lg:pt-14">
+            <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+              <div className="inline-flex items-center rounded-full bg-white/70 px-3 py-1 text-[12px] font-semibold text-slate-700 shadow-sm ring-1 ring-black/5">
+                Preview
+              </div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-xl text-[#1D1D1F]/60 max-w-2xl mx-auto mb-12 leading-relaxed"
-        >
-          Automate sourcing, conduct AI-led interviews, and get ranked shortlists
-          of qualified candidates — all in one platform.
-        </motion.p>
+              <h1 className="mt-6 text-[44px] leading-[1.02] md:text-[56px] lg:text-[66px] font-extrabold tracking-tight text-slate-900">
+                AI talent
+                <br />
+                infrastructure
+                <br />
+                to grow your lab
+              </h1>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex items-center justify-center gap-4"
-        >
-          <Button size="lg" className="bg-[#1D1D1F] text-white hover:bg-[#1D1D1F]/90 rounded-full h-14 px-8 text-base group" asChild>
-            <Link to="/dashboard">
-              Start hiring free
-              <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </motion.div>
+              <p className="mt-6 max-w-xl text-[15px] leading-7 text-slate-600">
+                Connect companies and AI labs with top experts in LLMs, RL, CV, and safety. Automate screening, rank candidates, and move from request to interview in days.
+              </p>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="mt-20 flex items-center justify-center gap-16"
-        >
-          <div className="text-center">
-            <p className="text-4xl font-bold text-[#0071E3]">500+</p>
-            <p className="text-sm text-[#1D1D1F]/50 mt-1">Companies</p>
+              <div className="mt-8 flex items-center gap-4">
+                <Button className="rounded-full bg-slate-900 text-white hover:bg-slate-800 h-10 px-5 text-[13px]" asChild>
+                  <Link to="/signup">Request access</Link>
+                </Button>
+                <Button variant="outline" className="rounded-full h-10 px-5 text-[13px] border-slate-200" asChild>
+                  <Link to="/dashboard">View dashboard</Link>
+                </Button>
+              </div>
+            </motion.div>
           </div>
-          <div className="w-px h-12 bg-[#1D1D1F]/10" />
-          <div className="text-center">
-            <p className="text-4xl font-bold text-[#0071E3]">50k+</p>
-            <p className="text-sm text-[#1D1D1F]/50 mt-1">Candidates</p>
+
+          <div className="pt-6 lg:pt-12">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
+              <AiLabsHeroMock />
+            </motion.div>
           </div>
-          <div className="w-px h-12 bg-[#1D1D1F]/10" />
-          <div className="text-center">
-            <p className="text-4xl font-bold text-[#0071E3]">3 days</p>
-            <p className="text-sm text-[#1D1D1F]/50 mt-1">Avg. time to hire</p>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
-};
+ };
 
 export default Hero;

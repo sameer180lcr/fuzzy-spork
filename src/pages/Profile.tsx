@@ -1,26 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Upload, Plus, X, Clock, Calendar, HelpCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = ["Resume", "Availability", "Work Preferences", "Communications", "Account"];
 
+const API_URL = "http://localhost:5000/api/profile";
+const getUserID = () => localStorage.getItem("userEmail") || "test_user";
+
 // Resume Tab
-const ResumeTab = () => {
+const ResumeTab = ({ data, onSave }: any) => {
     const [profile, setProfile] = useState({
         fullName: localStorage.getItem("userName") || "",
         email: localStorage.getItem("userEmail") || "",
-        phone: localStorage.getItem("userPhone") || "",
-        city: localStorage.getItem("userCity") || "",
+        phone: "",
+        city: "",
         country: "",
         linkedin: "",
         noLinkedin: false,
         summary: "",
+        resumeFileName: "",
     });
+
+    useEffect(() => {
+        if (data) {
+            setProfile(prev => ({
+                ...prev,
+                fullName: data.account?.fullName || prev.fullName,
+                email: data.communication?.email || prev.email,
+                phone: data.communication?.phone || data.phone || "",
+                city: data.city || "",
+                country: data.country || "",
+                linkedin: data.linkedin || "",
+                noLinkedin: data.noLinkedin || false,
+                summary: data.resume || "",
+                resumeFileName: data.resumeFileName || "",
+            }));
+            // If there's a saved resume file name, show it
+            if (data.resumeFileName) {
+                // Create a mock file object to show the saved file name
+                setResumeFile(new File([""], data.resumeFileName, { type: "application/pdf" }));
+            }
+        }
+    }, [data]);
+
     const [saved, setSaved] = useState(false);
     const [resumeFile, setResumeFile] = useState<File | null>(null);
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        const updatedData = {
+            userId: getUserID(),
+            account: { ...data?.account, fullName: profile.fullName },
+            communication: { ...data?.communication, email: profile.email, phone: profile.phone },
+            resume: profile.summary, // using summary field for resume text
+            city: profile.city,
+            country: profile.country,
+            linkedin: profile.linkedin,
+            noLinkedin: profile.noLinkedin,
+            resumeFileName: resumeFile?.name || profile.resumeFileName,
+        };
+        await onSave(updatedData);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -129,8 +168,26 @@ const ResumeTab = () => {
 };
 
 // Availability Tab
-const AvailabilityTab = () => {
-    const [availability, setAvailability] = useState({ start: "Immediately", hours: "40", timezone: "Asia/Kolkata" });
+const AvailabilityTab = ({ data, onSave }: any) => {
+    const [availability, setAvailability] = useState({
+        start: "Immediately",
+        hours: "40",
+        timezone: "Asia/Kolkata"
+    });
+
+    useEffect(() => {
+        if (data) {
+            setAvailability({
+                start: data.availability || "Immediately",
+                hours: data.availabilityHours || "40",
+                timezone: data.timezone || "Asia/Kolkata"
+            });
+            if (data.workingHours && data.workingHours.length > 0) {
+                setDays(data.workingHours);
+            }
+        }
+    }, [data]);
+
     const [days, setDays] = useState([
         { day: "S", label: "Sun", active: false, start: "", end: "" },
         { day: "M", label: "Mon", active: true, start: "9:00am", end: "5:00pm" },
@@ -158,7 +215,15 @@ const AvailabilityTab = () => {
         setDays(newDays);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        const updatedData = {
+            userId: getUserID(),
+            availability: availability.start,
+            availabilityHours: availability.hours,
+            timezone: availability.timezone,
+            workingHours: days
+        };
+        await onSave(updatedData);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -264,10 +329,20 @@ const AvailabilityTab = () => {
 };
 
 // Work Preferences Tab
-const WorkPreferencesTab = () => {
+const WorkPreferencesTab = ({ data, onSave }: any) => {
     const domains = ["Software Engineering", "Medicine", "Law", "Data Analysis", "Finance", "Business Operations", "Life, Physical, and Social Science", "Arts & Design", "Language and Audio", "Humanities", "Miscellaneous"];
-    const [selected, setSelected] = useState(["Software Engineering"]);
+    const [selected, setSelected] = useState<string[]>([]);
     const [other, setOther] = useState("");
+
+    useEffect(() => {
+        if (data) {
+            setOther(data.workPreference || "");
+            if (data.domainInterests) setSelected(data.domainInterests);
+            if (data.compensationFullTime) setFullTime(data.compensationFullTime.toString());
+            if (data.compensationPartTime) setPartTime(data.compensationPartTime.toString());
+        }
+    }, [data]);
+
     const [fullTime, setFullTime] = useState("0");
     const [partTime, setPartTime] = useState("0");
     const [saved, setSaved] = useState(false);
@@ -276,7 +351,15 @@ const WorkPreferencesTab = () => {
         setSelected(selected.includes(d) ? selected.filter(x => x !== d) : [...selected, d]);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        const updatedData = {
+            userId: getUserID(),
+            workPreference: other,
+            domainInterests: selected,
+            compensationFullTime: parseInt(fullTime) || 0,
+            compensationPartTime: parseInt(partTime) || 0
+        };
+        await onSave(updatedData);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -340,10 +423,25 @@ const WorkPreferencesTab = () => {
 };
 
 // Communications Tab
-const CommunicationsTab = () => {
+const CommunicationsTab = ({ data, onSave }: any) => {
     const [settings, setSettings] = useState({
         email: true, sms: true, fullTime: true, partTime: true, referral: true, jobOpps: true, workUpdates: true, unsubscribe: false
     });
+    useEffect(() => {
+        if (data && data.communicationPreferences) {
+            setSettings({
+                email: data.communicationPreferences.emailEnabled ?? true,
+                sms: data.communicationPreferences.smsEnabled ?? true,
+                fullTime: data.communicationPreferences.fullTimeOpps ?? true,
+                partTime: data.communicationPreferences.partTimeOpps ?? true,
+                referral: data.communicationPreferences.referralOpps ?? true,
+                jobOpps: data.communicationPreferences.jobOpps ?? true,
+                workUpdates: data.communicationPreferences.workUpdates ?? true,
+                unsubscribe: data.communicationPreferences.unsubscribeAll ?? false
+            });
+        }
+    }, [data]);
+
     const [saved, setSaved] = useState(false);
 
     const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void }) => (
@@ -352,7 +450,21 @@ const CommunicationsTab = () => {
         </button>
     );
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        const updatedData = {
+            userId: getUserID(),
+            communicationPreferences: {
+                emailEnabled: settings.email,
+                smsEnabled: settings.sms,
+                fullTimeOpps: settings.fullTime,
+                partTimeOpps: settings.partTime,
+                referralOpps: settings.referral,
+                jobOpps: settings.jobOpps,
+                workUpdates: settings.workUpdates,
+                unsubscribeAll: settings.unsubscribe
+            }
+        };
+        await onSave(updatedData);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -407,12 +519,30 @@ const CommunicationsTab = () => {
 };
 
 // Account Tab
-const AccountTab = () => {
+const AccountTab = ({ data, onSave }: any) => {
     const [genAI, setGenAI] = useState(true);
     const [saved, setSaved] = useState(false);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-    const handleSave = () => {
+    useEffect(() => {
+        if (data && data.account) {
+            setGenAI(data.account.genAI ?? true);
+            if (data.account.avatar) {
+                // Mock creating a file object from string for display if needed, or just skip if using URL
+                // For now, let's assume if we have a string it's a mock URL or filename
+            }
+        }
+    }, [data]);
+
+    const handleSave = async () => {
+        const updatedData = {
+            userId: getUserID(),
+            account: {
+                genAI: genAI,
+                avatar: avatarFile ? avatarFile.name : (data?.account?.avatar || "")
+            }
+        };
+        await onSave(updatedData);
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
     };
@@ -495,15 +625,50 @@ const AccountTab = () => {
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState("Resume");
+    const [profileData, setProfileData] = useState<any>(null);
+
+    const fetchProfile = async () => {
+        try {
+            const res = await fetch(`${API_URL}/${getUserID()}`);
+            if (res.ok) {
+                const data = await res.json();
+                setProfileData(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch profile", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
+    const saveProfile = async (data: any) => {
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            if (res.ok) {
+                const newData = await res.json();
+                setProfileData(newData);
+            }
+        } catch (error) {
+            console.error("Failed to save profile", error);
+        }
+    };
 
     const renderTabContent = () => {
+        // We pass profileData and saveProfile function to each tab
+        // Note: For a real app, use Context or State Management
         switch (activeTab) {
-            case "Resume": return <ResumeTab />;
-            case "Availability": return <AvailabilityTab />;
-            case "Work Preferences": return <WorkPreferencesTab />;
-            case "Communications": return <CommunicationsTab />;
-            case "Account": return <AccountTab />;
-            default: return <ResumeTab />;
+            case "Resume": return <ResumeTab data={profileData} onSave={saveProfile} />;
+            case "Availability": return <AvailabilityTab data={profileData} onSave={saveProfile} />;
+            case "Work Preferences": return <WorkPreferencesTab data={profileData} onSave={saveProfile} />;
+            case "Communications": return <CommunicationsTab data={profileData} onSave={saveProfile} />;
+            case "Account": return <AccountTab data={profileData} onSave={saveProfile} />;
+            default: return <ResumeTab data={profileData} onSave={saveProfile} />;
         }
     };
 

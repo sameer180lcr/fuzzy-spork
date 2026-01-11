@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import ZeroXLogo from "@/components/ZeroXLogo";
+import Logo from "@/components/ZeroXLogo";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ const Login = () => {
 
     const [error, setError] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
@@ -21,23 +21,35 @@ const Login = () => {
             return;
         }
 
-        // Mock login - in real app would validate against backend
-        localStorage.setItem("userEmail", email);
-        // If name exists in local storage from signup, keep it, otherwise set default
-        if (!localStorage.getItem("userName")) {
-            localStorage.setItem("userName", email.split('@')[0]);
-        }
+        try {
+            const res = await fetch("http://localhost:5000/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-        navigate("/dashboard");
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.msg || "Login failed");
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userEmail", data.user.email);
+            localStorage.setItem("userName", data.user.name);
+            navigate("/dashboard");
+
+        } catch (err: any) {
+            setError(err.message);
+        }
     };
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
             <div className="w-full max-w-md">
                 {/* Logo */}
-                <Link to="/" className="block mb-8">
-                    <ZeroXLogo size="lg" />
-                </Link>
+                <div className="mb-8">
+                    <Logo size="lg" />
+                </div>
 
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h1>
                 <p className="text-gray-500 mb-8">Sign in to continue</p>

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import ZeroXLogo from "./ZeroXLogo";
+import Logo from "./ZeroXLogo";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
       <div className="container mx-auto px-6 h-14 flex items-center justify-between">
         <Link to="/">
-          <ZeroXLogo size="md" />
+          <Logo size="md" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
@@ -21,9 +21,9 @@ const Header = () => {
           <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
             Sign in
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg"
             onClick={() => navigate("/verification")}
           >

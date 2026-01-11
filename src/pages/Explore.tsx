@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Search, Flame, Clock, DollarSign, Users, MapPin, Briefcase, ChevronRight } from "lucide-react";
@@ -19,28 +19,25 @@ const useDebounce = (value: string, delay: number) => {
     return debouncedValue;
 };
 
-const allOpportunities = [
-    { id: "1", title: "SaaS Software Data Reviewer", rate: "$30 - $37", minRate: 30, hiredCount: 20, budget: "100", createdDays: 5, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "C", color: "bg-black" }, { letter: "A", color: "bg-gray-700" }] },
-    { id: "2", title: "Database Administrators", rate: "$75 - $100", minRate: 75, hiredCount: 17, budget: "200", createdDays: 2, avatars: [{ letter: "M", color: "bg-blue-800" }] },
-    { id: "3", title: "Mathematics Expert (Master's / PhD)", rate: "$60 - $80", minRate: 60, hiredCount: 174, budget: "250", createdDays: 10, avatars: [{ letter: "T", color: "bg-blue-600" }, { letter: "R", color: "bg-black" }, { letter: "L", color: "bg-blue-900" }] },
-    { id: "4", title: "Digital Annotation Expert", rate: "$16", minRate: 16, hiredCount: 4069, budget: "50", createdDays: 30, avatars: [{ letter: "M", color: "bg-black" }, { letter: "K", color: "bg-blue-700" }] },
-    { id: "5", title: "Physics Expert (Masters/PhDs)", rate: "$65 - $75", minRate: 65, hiredCount: 9, budget: "250", createdDays: 7, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "C", color: "bg-black" }, { letter: "D", color: "bg-gray-800" }] },
-    { id: "6", title: "Life/Health Actuaries", rate: "$75 - $100", minRate: 75, hiredCount: 19, budget: "200", createdDays: 3, avatars: [{ letter: "D", color: "bg-blue-900" }, { letter: "Y", color: "bg-black" }] },
-    { id: "7", title: "Material Science Expert (Masters/PhDs)", rate: "$75 - $85", minRate: 75, hiredCount: 8, budget: "250", createdDays: 14, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "S", color: "bg-blue-800" }, { letter: "O", color: "bg-black" }] },
-    { id: "8", title: "Frontend Software Engineer (React, TypeScript)", rate: "$80 - $120", minRate: 80, hiredCount: 13, budget: "300", createdDays: 1, avatars: [{ letter: "V", color: "bg-black" }, { letter: "R", color: "bg-blue-700" }, { letter: "E", color: "bg-gray-600" }] },
-    { id: "9", title: "Backend Software Engineer: Python", rate: "$80 - $120", minRate: 80, hiredCount: 28, budget: "300", createdDays: 4, avatars: [{ letter: "X", color: "bg-blue-600" }, { letter: "W", color: "bg-black" }] },
-    { id: "10", title: "Biology Experts (Masters/PhDs)", rate: "$65 - $75", minRate: 65, hiredCount: 6, budget: "200", createdDays: 8, avatars: [{ letter: "M", color: "bg-blue-900" }, { letter: "G", color: "bg-gray-800" }, { letter: "R", color: "bg-black" }] },
-    { id: "11", title: "Backend Software Engineer: Go", rate: "$80 - $100", minRate: 80, hiredCount: 12, budget: "250", createdDays: 6, avatars: [{ letter: "T", color: "bg-blue-600" }, { letter: "N", color: "bg-black" }] },
-    { id: "12", title: "Medical Resident (Must be PGY3 or above)", rate: "$110", minRate: 110, hiredCount: 10, budget: "300", createdDays: 2, avatars: [{ letter: "A", color: "bg-black" }, { letter: "M", color: "bg-blue-600" }, { letter: "S", color: "bg-blue-900" }] },
-    { id: "13", title: "Chemistry Expert (Masters/PhDs)", rate: "$65 - $75", minRate: 65, hiredCount: 3, budget: "250", createdDays: 12, avatars: [{ letter: "M", color: "bg-blue-600" }, { letter: "C", color: "bg-black" }, { letter: "D", color: "bg-gray-700" }] },
-    { id: "14", title: "P&C Actuaries", rate: "$60 - $100", minRate: 60, hiredCount: 2, budget: "200", createdDays: 20, avatars: [{ letter: "G", color: "bg-blue-900" }, { letter: "S", color: "bg-black" }] },
-    { id: "15", title: "Data Scientist (Kaggle-Grandmaster)", rate: "$56 - $77", minRate: 56, hiredCount: 2, budget: "500", createdDays: 9, avatars: [{ letter: "C", color: "bg-black" }, { letter: "A", color: "bg-blue-700" }] },
-    { id: "16", title: "Indonesian Language Expert", rate: "$10 - $14", minRate: 10, hiredCount: 110, budget: "100", createdDays: 15, avatars: [{ letter: "S", color: "bg-blue-600" }, { letter: "M", color: "bg-black" }, { letter: "D", color: "bg-gray-800" }] },
-];
+// Custom interface for Opportunity
+interface Opportunity {
+    id: string;
+    title: string;
+    rate: string;
+    minRate: number;
+    hiredCount: number;
+    budget: string;
+    createdDays: number;
+    location: string;
+    type: string;
+    description: string;
+    qualifications: string[];
+    avatars: { letter: string; color: string }[];
+}
 
 // Memoized Job Card Component - prevents unnecessary re-renders
 const JobCard = memo(({ job, isSelected, onClick }: {
-    job: typeof allOpportunities[0];
+    job: Opportunity;
     isSelected: boolean;
     onClick: () => void
 }) => (
@@ -74,21 +71,44 @@ const JobCard = memo(({ job, isSelected, onClick }: {
 JobCard.displayName = 'JobCard';
 
 // Memoized Job Detail Panel - prevents unnecessary re-renders
-const JobDetailPanel = memo(({ job, onClose }: { job: typeof allOpportunities[0] | null; onClose: () => void }) => {
+const JobDetailPanel = memo(({ job, onClose }: { job: Opportunity | null; onClose: () => void }) => {
+    const [profileData, setProfileData] = useState<any>(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const USER_ID = localStorage.getItem("userEmail") || "test_user";
+                const res = await fetch(`http://localhost:5000/api/profile/${USER_ID}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setProfileData(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile", error);
+            }
+        };
+        fetchProfile();
+    }, []);
+
     if (!job) return null;
 
+    // Check if Resume step is completed
+    const isResumeCompleted = profileData &&
+        profileData.resumeFileName &&
+        profileData.account?.fullName &&
+        profileData.city;
+
     const applicationSteps = [
-        { name: "Resume", status: "Not done" },
-        { name: "Domain Expert Interview", status: "Not done" },
-        { name: "Rubric Calibration Assessment (A)", status: "Not done" },
-        { name: "Work Authorization", status: "Not done" },
+        { name: "Resume", status: isResumeCompleted ? "Done" : "Not done", completed: isResumeCompleted },
+        { name: "Domain Expert Interview", status: "Not done", completed: false },
+        { name: "Rubric Calibration Assessment (AI)", status: "Not done", completed: false },
+        { name: "Work Authorization", status: "Not done", completed: false },
     ];
 
     // Calculate progress percentage
-    const completedSteps = 0; // This would come from your application state
+    const completedSteps = applicationSteps.filter(step => step.completed).length;
     const progressPercentage = (completedSteps / applicationSteps.length) * 100;
-
-    const navigate = useNavigate();
 
     return (
         <div className="fixed inset-0 z-50 flex">
@@ -165,15 +185,27 @@ const JobDetailPanel = memo(({ job, onClose }: { job: typeof allOpportunities[0]
                             {applicationSteps.map((step, i) => (
                                 <div key={i} className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-lg">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
-                                            <span className="text-sm font-medium text-gray-400">{i + 1}</span>
+                                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${step.completed ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
+                                            {step.completed ? (
+                                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            ) : (
+                                                <span className="text-sm font-medium text-gray-400">{i + 1}</span>
+                                            )}
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium text-gray-900">{step.name}</p>
-                                            <p className="text-xs text-gray-500">{step.status}</p>
+                                            <p className={`text-xs ${step.completed ? 'text-green-600' : 'text-gray-500'}`}>{step.status}</p>
                                         </div>
                                     </div>
-                                    <div className="w-5 h-5 rounded-full border-2 border-gray-200 flex-shrink-0" />
+                                    <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 ${step.completed ? 'border-green-500 bg-green-500' : 'border-gray-200'}`}>
+                                        {step.completed && (
+                                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -183,21 +215,22 @@ const JobDetailPanel = memo(({ job, onClose }: { job: typeof allOpportunities[0]
                     <div className="mb-8">
                         <h3 className="text-base font-medium text-gray-900 mb-3">Role Overview</h3>
                         <div className="space-y-4 text-sm text-gray-600">
-                            <p>ZeroX is looking for freelance contributors who are able to analyze the output of various B2B SaaS systems. This project involves interpreting data and translating them into high-quality prompt-response data.</p>
+                            <p className="whitespace-pre-line">{job.description}</p>
 
-                            <div>
-                                <h4 className="font-medium text-gray-900 mb-2">Qualifications</h4>
-                                <ul className="list-disc pl-5 space-y-1">
-                                    <li>Experience with B2B SaaS applications</li>
-                                    <li>Strong analytical and problem-solving skills</li>
-                                    <li>Attention to detail and ability to follow guidelines</li>
-                                    <li>Excellent written communication skills in English</li>
-                                </ul>
-                            </div>
+                            {job.qualifications.length > 0 && (
+                                <div>
+                                    <h4 className="font-medium text-gray-900 mb-2">Qualifications</h4>
+                                    <ul className="list-disc pl-5 space-y-1">
+                                        {job.qualifications.map((q, i) => (
+                                            <li key={i}>{q}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
 
                             <div>
                                 <h4 className="font-medium text-gray-900 mb-2">Project Duration</h4>
-                                <p>Ongoing, with flexible hours based on your availability</p>
+                                <p>{job.type || "Permanent"}, with flexible hours based on your availability</p>
                             </div>
                         </div>
                     </div>
@@ -222,17 +255,48 @@ JobDetailPanel.displayName = 'JobDetailPanel';
 const ITEMS_PER_PAGE = 16;
 
 const Explore = () => {
+    const [liveOpportunities, setLiveOpportunities] = useState<any[]>([]);
     const [activeFilter, setActiveFilter] = useState("best");
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedJob, setSelectedJob] = useState<typeof allOpportunities[0] | null>(null);
+    const [selectedJob, setSelectedJob] = useState<any | null>(null);
+
+    useEffect(() => {
+        const fetchJobs = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/listings');
+                const data = await response.json();
+                // Map backend data to match the UI structure
+                const mappedData = data.map((job: any) => ({
+                    id: job.id || job._id,
+                    title: job.jobTitle,
+                    rate: job.minSalary ? `$${Math.round(job.minSalary / 2000)} - $${Math.round(job.maxSalary / 2000)}` : "$50 - $70",
+                    minRate: job.minSalary / 2000 || 50,
+                    hiredCount: job.applicants || 0,
+                    budget: job.maxSalary ? (job.maxSalary / 1000).toString() : "100",
+                    createdDays: 1,
+                    location: job.location,
+                    type: job.employmentType,
+                    description: job.description || "No description provided.",
+                    qualifications: Array.isArray(job.requirements) ? job.requirements : [job.requirements].filter(Boolean),
+                    avatars: [{ letter: job.jobTitle[0], color: "bg-blue-600" }]
+                }));
+                setLiveOpportunities(mappedData);
+            } catch (error) {
+                console.error("Error fetching jobs:", error);
+            }
+        };
+        fetchJobs();
+    }, []);
+
+
 
     // Debounce search for better performance (300ms delay)
     const debouncedSearch = useDebounce(searchQuery, 300);
 
     // Memoized filtering and sorting - only recalculates when dependencies change
     const filteredAndSortedOpportunities = useMemo(() => {
-        let filtered = allOpportunities.filter(opp =>
+        let filtered = liveOpportunities.filter(opp =>
             opp.title.toLowerCase().includes(debouncedSearch.toLowerCase())
         );
 
@@ -246,7 +310,7 @@ const Explore = () => {
             default:
                 return [...filtered].sort((a, b) => (b.hiredCount * 0.5 + b.minRate * 0.5) - (a.hiredCount * 0.5 + a.minRate * 0.5));
         }
-    }, [debouncedSearch, activeFilter]);
+    }, [debouncedSearch, activeFilter, liveOpportunities]);
 
     // Memoized pagination
     const paginatedOpportunities = useMemo(() => {
@@ -268,7 +332,7 @@ const Explore = () => {
         setCurrentPage(1);
     }, []);
 
-    const handleJobSelect = useCallback((job: typeof allOpportunities[0]) => {
+    const handleJobSelect = useCallback((job: Opportunity) => {
         setSelectedJob(job);
     }, []);
 
@@ -304,8 +368,8 @@ const Explore = () => {
                                     className="h-10 w-56 rounded-lg border border-gray-200 bg-white pl-9 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-blue-400"
                                 />
                             </div>
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 className="h-10 px-4 border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                                 onClick={() => window.location.href = '/blog'}
                             >

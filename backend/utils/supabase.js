@@ -58,9 +58,42 @@ const getListingById = async (id) => {
   }
 };
 
+// Function to save a new application
+const saveApplication = async (applicationData) => {
+  try {
+    const { data, error } = await supabase
+      .from('applications')
+      .insert([applicationData])
+      .select();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error saving application:', error);
+    throw error;
+  }
+};
+
+// Function to get all applications
+const getApplications = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*');
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   saveListing,
   getListings,
   getListingById,
+  saveApplication,
+  getApplications,
   supabase
 };

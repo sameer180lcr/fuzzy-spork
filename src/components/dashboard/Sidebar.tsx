@@ -14,8 +14,8 @@ import {
 
 const navItems = [
   { icon: Search, label: "Explore", href: "/dashboard/explore" },
-  { icon: Brain, label: "Interview", href: "/expert-interview" },
   { icon: Home, label: "Home", href: "/dashboard" },
+  { icon: DollarSign, label: "Earnings", href: "/dashboard/earnings" },
   { icon: User, label: "Profile", href: "/dashboard/profile" },
 ];
 

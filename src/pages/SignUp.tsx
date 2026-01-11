@@ -13,7 +13,7 @@ const SignUp = () => {
 
     const [error, setError] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
@@ -22,9 +22,26 @@ const SignUp = () => {
             return;
         }
 
-        localStorage.setItem("userEmail", email);
-        localStorage.setItem("userName", name);
-        navigate("/dashboard");
+        try {
+            const res = await fetch("http://localhost:5000/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.msg || "Signup failed");
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userEmail", data.user.email);
+            localStorage.setItem("userName", data.user.name);
+            navigate("/dashboard");
+
+        } catch (err: any) {
+            setError(err.message);
+        }
     };
 
     return (
